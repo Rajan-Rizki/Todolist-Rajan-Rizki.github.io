@@ -1,40 +1,63 @@
-function keyEnter(event){
-    if(event.key === 'Enter'){
-        ShowTask()
+function keyEnter(event) {
+    if (event.key === 'Enter') {
+        addItem();
     }
 }
 
-const nama = document.getElementsByName("nama")[0]
+const nama = document.getElementsByName("nama")[0];
+const submit = document.querySelector("#additem");
 
-const submit = document.querySelector("#additem")
+const tasksContainer = document.querySelector(".tasks");
 
+const addItem = () => {
+    const taskValue = nama.value.trim();
+    if (taskValue !== '') {
+        const listItem = document.createElement('div');
+        listItem.textContent = taskValue;
+        
+        // Add delete button
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.className = 'delete-btn';
+        deleteButton.addEventListener('click', () => {
+            listItem.remove();
+            updateLocalStorage();
+        });
+        listItem.appendChild(deleteButton);
 
-const ShowTask = () => {
-    let getLocalStorage = localStorage.getItem("data")
-    const tasks = document.querySelector(".tasks")
-    tasks.textContent = getLocalStorage
+        tasksContainer.appendChild(listItem);
+
+        updateLocalStorage();
+        nama.value = ''; // Clear input field
+    } else {
+        alert("Input field cannot be empty!");
+    }
 }
-ShowTask()
-console.log(nama)
 
-submit.onclick = () => {
-     console.log("first")
-     localStorage.setItem("data", nama.value)
-     ShowTask()
+const updateLocalStorage = () => {
+    const tasks = Array.from(tasksContainer.children).map(task => task.textContent.split('Delete')[0].trim());
+    localStorage.setItem("data", JSON.stringify(tasks));
 }
 
-// removeBtn()
+submit.onclick = addItem;
 
-// function deleteitem(paramitem){
+window.onload = () => {
+    const storedTasks = JSON.parse(localStorage.getItem("data"));
+    if (storedTasks) {
+        storedTasks.forEach(task => {
+            const listItem = document.createElement('div');
+            listItem.textContent = task;
 
-//     var element = document.getElementById(paramitem);
-//     element.remove(paramiten)
-// }
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.className = 'delete-btn';
+            deleteButton.addEventListener('click', () => {
+                listItem.remove();
+                updateLocalStorage();
+            });
+            listItem.appendChild(deleteButton);
 
-
-let btn = document.querySelector('.delete')
-btn.addEventListener('click', () => {
-    console.log("removed item")
-    localStorage.removeItem('data')
-    ShowTask()
-})
+            tasksContainer.appendChild(listItem);
+        });
+    }
+};
